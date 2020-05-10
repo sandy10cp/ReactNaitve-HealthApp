@@ -11,6 +11,7 @@ import Food from './src/component/Food';
 import Profile from './src/component/Profile';
 import Health from './src/component/Health';
 
+
 const Stack = createStackNavigator()
 
 const MyTransition = {
@@ -35,6 +36,7 @@ class App extends Component {
 			user: [],
 			isLoggedIn: false,
 		};
+
 	}
 
 	componentDidMount() {
@@ -79,7 +81,7 @@ class App extends Component {
 					<Stack.Screen name="Home" component={Home} options={{ title: '', headerShown: false }} />
 					<Stack.Screen name="Login" component={Login} options={{ title: '', headerShown: false }} />
 					<Stack.Screen name="SignUp" component={SignUp} options={{ title: '', headerShown: false }} />
-					<Stack.Screen name="Food" component={Food} options={{ title: '', headerShown: true, headerTransparent: true, MyTransition}} />
+					<Stack.Screen name="Food" component={Food} options={{ title: '', headerShown: true, headerTransparent: true, MyTransition }} />
 					<Stack.Screen name="Profile" component={Profile} options={{ title: '', headerShown: true, headerTransparent: true, MyTransition }} />
 					<Stack.Screen name="Health" component={Health} options={{ title: '', headerShown: true, headerTransparent: true, MyTransition }} />
 				</Stack.Navigator>

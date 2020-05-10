@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { View, Text, StyleSheet, FlatList, ScrollView, Image, TouchableOpacity, Alert, Animated } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage'
 import Shimmer from '../shimmer';
-
+import PushNotification from "react-native-push-notification"
+import OneSignal from 'react-native-onesignal';
 
 
 class Home extends Component {
@@ -14,10 +15,80 @@ class Home extends Component {
             visible: false
         };
 
+        OneSignal.setLogLevel(6, 0);
+
+        // Replace 'YOUR_ONESIGNAL_APP_ID' with your OneSignal App ID.
+        OneSignal.init("4cdb23b8-97a7-478c-bca4-43f85558e0ee", { kOSSettingsKeyAutoPrompt: false, kOSSettingsKeyInAppLaunchURL: false, kOSSettingsKeyInFocusDisplayOption: 2 });
+
+        // The promptForPushNotifications function code will show the iOS push notification prompt. We recommend removing the following code and instead using an In-App Message to prompt for notification permission (See step below)
+        //OneSignal.promptForPushNotificationsWithUserResponse(myiOSPromptCallback);
+
+        OneSignal.addEventListener('received', this.onReceived);
+        OneSignal.addEventListener('opened', this.onOpened.bind(this));
+        OneSignal.addEventListener('ids', this.onIds);
+
+    }
+
+    componentWillUnmount() {
+        OneSignal.removeEventListener('received', this.onReceived);
+        OneSignal.removeEventListener('opened', this.onOpened);
+        OneSignal.removeEventListener('ids', this.onIds);
+    }
+
+    onReceived(notification) {
+        console.log("Notification received: ", notification);
+    }
+
+    onOpened(openResult) {
+        console.log('Message: ', openResult.notification.payload.body);
+        console.log('Data: ', openResult.notification.payload.additionalData);
+        console.log('isActive: ', openResult.notification.isAppInFocus);
+        console.log('openResult: ', openResult);
+        setTimeout(() => {
+            this.props.navigation.navigate('Health')
+        }, 1000);
+    }
+
+    onIds(device) {
+        console.log(device.userId); // Get user id from one signal 
+    }
+
+    testLocalNofication = () => {
+        PushNotification.localNotification({
+
+            title: "My Notification Title", // (optional)
+            message: "My Notification Message", // (required)
+        });
+    }
+
+    testScheduleNotification = () => {
+        PushNotification.localNotificationSchedule({
+            //... You can use all the options from localNotifications
+            message: "My Schedule Notification Message", // (required)
+            date: new Date(Date.now() + 10 * 1000), // in 60 secs
+        });
     }
 
     componentDidMount() {
         this.retrieveItem();
+
+        PushNotification.configure({
+            onRegister: function (token) {
+                console.log("TOKEN:", token);
+            },
+
+            onNotification: function (notification) {
+                console.log("NOTIFICATION:", notification);
+                //   notification.finish(PushNotificationIOS.FetchResult.NoData);
+            },
+            permissions: {
+                alert: true,
+                badge: true,
+                sound: true,
+            },
+            popInitialNotification: true,
+            requestPermissions: Platform.OS === 'ios'
+        });
     }
 
     LogOut = () => {
@@ -149,20 +220,24 @@ class Home extends Component {
                         <Image source={require('../icon/health.png')} />
                         <Text style={{ fontSize: 15, color: '#740000' }}>Health</Text>
                     </TouchableOpacity>
-                    <View style={styles.menuItem}>
+                    <TouchableOpacity
+                        onPress={this.testLocalNofication}
+                        style={styles.menuItem}>
                         <Image source={require('../icon/medicine.png')} />
                         <Text style={{ fontSize: 15, color: '#740000' }}>Medicine</Text>
-                    </View>
+                    </TouchableOpacity>
                     <TouchableOpacity
                         onPress={this.Food}
                         style={styles.menuItem}>
                         <Image source={require('../icon/food.png')} />
                         <Text style={{ fontSize: 15, color: '#740000' }}>Food</Text>
                     </TouchableOpacity>
-                    <View style={styles.menuItem}>
+                    <TouchableOpacity
+                        onPress={this.testScheduleNotification}
+                        style={styles.menuItem}>
                         <Image source={require('../icon/sleep.png')} />
                         <Text style={{ fontSize: 15, color: '#740000' }}>Sleep</Text>
-                    </View>
+                    </TouchableOpacity>
                     <View style={styles.menuItem}>
                         <Image source={require('../icon/exercise.png')} />
                         <Text style={{ fontSize: 15, color: '#740000' }}>Exercise</Text>
