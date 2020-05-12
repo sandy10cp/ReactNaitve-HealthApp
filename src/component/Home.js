@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-community/async-storage'
 import Shimmer from '../shimmer';
 import PushNotification from "react-native-push-notification"
 import OneSignal from 'react-native-onesignal';
+import Carousel, { Pagination } from 'react-native-snap-carousel';
 
 
 class Home extends Component {
@@ -12,10 +13,29 @@ class Home extends Component {
         this.state = {
             user: [],
             isLoggedIn: true,
-            visible: false
+            visible: false,
+            carouselItems: [
+                {
+                    title: "Item 1"
+                },
+                {
+                    title: "Item 2"
+                },
+                {
+                    title: "Item 3"
+                },
+                {
+                    title: "Item 4"
+                },
+                {
+                    title: "Item 5"
+                }
+            ]
         };
 
-        OneSignal.setLogLevel(6, 0);
+        OneSignal.setLogLevel(4, 0);
+
+        OneSignal.inFocusDisplaying(2);
 
         // Replace 'YOUR_ONESIGNAL_APP_ID' with your OneSignal App ID.
         OneSignal.init("4cdb23b8-97a7-478c-bca4-43f85558e0ee", { kOSSettingsKeyAutoPrompt: false, kOSSettingsKeyInAppLaunchURL: false, kOSSettingsKeyInFocusDisplayOption: 2 });
@@ -137,6 +157,14 @@ class Home extends Component {
 
     Profile = () => {
         this.props.navigation.navigate('Profile')
+    }
+
+    _renderItem({ item, index }) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'gray' }}>
+                <Text style={{ color: 'black' }} >{item.title}</Text>
+            </View>
+        )
     }
 
     render() {
@@ -270,6 +298,15 @@ class Home extends Component {
                         />
                     </View>
                 </ScrollView> */}
+                <Carousel
+                    data={this.state.carouselItems}
+                    sliderWidth={400}
+                    itemWidth={350}
+                    autoplay={true}
+                    loop={true}
+                    autoplayInterval={3000}
+                    renderItem={this._renderItem}
+                />
             </View >
         );
     }
@@ -281,6 +318,8 @@ export default Home;
 const styles = StyleSheet.create({
     content: {
         flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     panel: {
         flexDirection: 'row',
